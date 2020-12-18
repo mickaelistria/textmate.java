@@ -11,6 +11,8 @@
  */
 package org.eclipse.tm4e.core.grammar;
 
+import static org.junit.Assert.assertArrayEquals;
+
 import org.eclipse.tm4e.core.Data;
 import org.eclipse.tm4e.core.registry.Registry;
 import org.junit.Assert;
@@ -92,6 +94,22 @@ public class GrammarTest {
 			}
 			j = i;
 		}
+	}
 
+	@Test
+	public void testVSCodeTextMateIssue8() throws Exception {
+		String path = "Makefile.plist";
+		IGrammar grammar = new Registry().loadGrammarFromPathSync(path, Data.class.getResourceAsStream(path));
+		String line = "ifeq (version,$(firstword $(MAKECMDGOALS))";
+		ITokenizeLineResult res = grammar.tokenizeLine(line);
+		assertArrayEquals(
+			new String[] { "source.makefile",
+					"meta.scope.conditional.makefile",
+					"meta.scope.condition.makefile",
+					"string.interpolated.makefile",
+					"meta.scope.function-call.makefile",
+					"string.interpolated.makefile",
+					"variable.language.makefile" },	
+			res.getTokens()[6].getScopes().toArray(String[]::new));
 	}
 }
